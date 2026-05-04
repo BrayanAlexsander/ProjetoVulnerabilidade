@@ -23,5 +23,21 @@ public class UsuarioController {
     Usuario u = usuarioService.cadastrar(req);
     return new UsuarioResponse(u.getId(), u.getNome(), u.getEmail(), u.getCriadoEm());
   }
-}
 
+  // VULNERABILIDADE #2: XSS - sem validação
+  @PostMapping("/vulneravel")
+  @ResponseStatus(HttpStatus.CREATED)
+  public UsuarioResponse cadastrarVulneravel(@RequestBody UsuarioCreateRequest req) {
+    // Sem @Valid - aceita qualquer entrada, incluindo XSS
+    Usuario u = usuarioService.cadastrar(req);
+    return new UsuarioResponse(u.getId(), u.getNome(), u.getEmail(), u.getCriadoEm());
+  }
+
+  // VULNERABILIDADE #3: Senha em texto plano
+  @PostMapping("/vulneravel-senha")
+  @ResponseStatus(HttpStatus.CREATED)
+  public UsuarioResponse cadastrarVulneravelSenha(@RequestBody UsuarioCreateRequest req) {
+    Usuario u = usuarioService.cadastrarVulneravel(req);
+    return new UsuarioResponse(u.getId(), u.getNome(), u.getEmail(), u.getCriadoEm());
+  }
+}

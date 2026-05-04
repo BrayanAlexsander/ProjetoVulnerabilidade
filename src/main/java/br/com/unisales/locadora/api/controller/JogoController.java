@@ -29,6 +29,13 @@ public class JogoController {
     return toResponse(jogoService.criar(req));
   }
 
+  // VULNERABILIDADE #6: Command Injection
+  @PostMapping("/vulneravel")
+  @ResponseStatus(HttpStatus.CREATED)
+  public JogoResponse criarVulneravel(@RequestBody JogoRequest req) {
+    return toResponse(jogoService.criarComCommandVulneravel(req));
+  }
+
   @PutMapping("/{id}")
   public JogoResponse atualizar(@PathVariable Long id, @Valid @RequestBody JogoRequest req) {
     return toResponse(jogoService.atualizar(id, req));
@@ -40,8 +47,21 @@ public class JogoController {
     jogoService.deletar(id);
   }
 
+  // VULNERABILIDADE #4 e #5: Sem autenticação / Controle de acesso inadequado
+  @DeleteMapping("/{id}/vulneravel")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deletarVulneravel(@PathVariable Long id,
+      @RequestHeader(value = "Authorization", required = false) String token) {
+    // VULNERABILIDADE: Validar apenas presença do token, não role/permissão
+    if (token == null || token.isEmpty()) {
+      throw new RuntimeException("Token ausente");
+    }
+    // Qualquer usuário com token pode deletar
+    jogoService.deletar(id);
+  }
+
   private JogoResponse toResponse(Jogo j) {
-    return new JogoResponse(j.getId(), j.getTitulo(), j.getPlataforma(), j.getPrecoDiaria(), j.isAtivo(), j.getCriadoEm());
+    return new JogoResponse(j.getId(), j.getTitulo(), j.getPlataforma(), j.getPrecoDiaria(), j.isAtivo(),
+        j.getCriadoEm());
   }
 }
-

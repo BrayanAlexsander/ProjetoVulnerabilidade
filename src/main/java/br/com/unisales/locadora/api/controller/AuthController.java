@@ -22,5 +22,12 @@ public class AuthController {
     String token = "dummy-" + UUID.randomUUID();
     return new LoginResponse(u.getId(), u.getEmail(), token);
   }
-}
 
+  // VULNERABILIDADE #1: SQL Injection
+  @PostMapping("/login-vulneravel")
+  public LoginResponse loginVulneravel(@RequestBody LoginRequest req) {
+    Usuario u = usuarioService.autenticarVulneravel(req.email(), req.senha());
+    String token = "dummy-" + UUID.randomUUID();
+    return new LoginResponse(u.getId(), u.getEmail(), token);
+  }
+}

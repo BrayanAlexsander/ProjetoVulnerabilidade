@@ -30,8 +30,24 @@ public class ClienteController {
     return toResponse(c);
   }
 
+  // VULNERABILIDADE #9: IDOR - acesso sem validação
+  @GetMapping("/{id}/dados-completos")
+  public ClienteDados obterDadosCompletos(@PathVariable Long id) {
+    // VULNERABILIDADE: Sem validação de permissão
+    Cliente c = clienteService.buscar(id);
+    return new ClienteDados(
+        c.getId(),
+        c.getNome(),
+        c.getDocumento(),
+        c.getNumeroCartao() // Dado sensível
+    );
+  }
+
   private ClienteResponse toResponse(Cliente c) {
     return new ClienteResponse(c.getId(), c.getNome(), c.getDocumento(), c.getCriadoEm());
   }
 }
 
+// VULNERABILIDADE #9: Record para dados sensíveis
+record ClienteDados(Long id, String nome, String documento, String numeroCartao) {
+}
