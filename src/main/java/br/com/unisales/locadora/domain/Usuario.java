@@ -5,7 +5,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "usuarios", uniqueConstraints = {
-    @UniqueConstraint(name = "uk_usuarios_email", columnNames = {"email"})
+    @UniqueConstraint(name = "uk_usuarios_email", columnNames = { "email" })
 })
 public class Usuario {
   @Id
@@ -20,6 +20,10 @@ public class Usuario {
 
   @Column(nullable = false, length = 120)
   private String senhaHash;
+
+  // VULNERABILIDADE #3: Senha em texto plano
+  @Column(length = 120)
+  private String senha; // Em vez de senhaHash
 
   @Column(nullable = false)
   private OffsetDateTime criadoEm = OffsetDateTime.now();
@@ -52,8 +56,15 @@ public class Usuario {
     this.senhaHash = senhaHash;
   }
 
+  public String getSenha() {
+    return senha;
+  }
+
+  public void setSenha(String senha) {
+    this.senha = senha;
+  }
+
   public OffsetDateTime getCriadoEm() {
     return criadoEm;
   }
 }
-

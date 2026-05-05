@@ -9,8 +9,9 @@ public record ApiError(
     String error,
     String message,
     String path,
-    List<FieldError> fieldErrors
+    List<FieldError> fieldErrors,
+    String stackTrace // VULNERABILIDADE #7
 ) {
-  public record FieldError(String field, String message) {}
+  public record FieldError(String field, String message) {
+  }
 }
-

@@ -16,6 +16,10 @@ public class Cliente {
   @Column(nullable = false, length = 40)
   private String documento;
 
+  // VULNERABILIDADE #8: Sem criptografia
+  @Column(length = 20)
+  private String numeroCartao; // Sem criptografia
+
   @Column(nullable = false)
   private OffsetDateTime criadoEm = OffsetDateTime.now();
 
@@ -39,8 +43,15 @@ public class Cliente {
     this.documento = documento;
   }
 
+  public String getNumeroCartao() {
+    return numeroCartao;
+  }
+
+  public void setNumeroCartao(String numeroCartao) {
+    this.numeroCartao = numeroCartao;
+  }
+
   public OffsetDateTime getCriadoEm() {
     return criadoEm;
   }
 }
-

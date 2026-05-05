@@ -3,6 +3,8 @@ package br.com.unisales.locadora.api.error;
 import br.com.unisales.locadora.service.BusinessException;
 import br.com.unisales.locadora.service.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -39,20 +41,41 @@ public class GlobalExceptionHandler {
     return build(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno", req.getRequestURI(), null);
   }
 
+  // VULNERABILIDADE #7: Exposição de stack trace
+  @ExceptionHandler(RuntimeException.class)
+  public ResponseEntity<ApiError> handleUnexpectedVulneravel(RuntimeException ex, HttpServletRequest req) {
+    // VULNERABILIDADE: Expor stack trace completo
+    StringWriter sw = new StringWriter();
+    ex.printStackTrace(new PrintWriter(sw));
+    String stackTrace = sw.toString();
+
+    ApiError body = new ApiError(
+        OffsetDateTime.now(),
+        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+        HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+        ex.getMessage(), // Mensagem da exceção
+        req.getRequestURI(), // path
+        null, // fieldErrors
+        stackTrace // stackTrace
+    );
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+  }
+
   private ApiError.FieldError toFieldError(FieldError fe) {
     return new ApiError.FieldError(fe.getField(), fe.getDefaultMessage());
   }
 
-  private ResponseEntity<ApiError> build(HttpStatus status, String message, String path, List<ApiError.FieldError> fieldErrors) {
+  private ResponseEntity<ApiError> build(HttpStatus status, String message, String path,
+      List<ApiError.FieldError> fieldErrors) {
     ApiError body = new ApiError(
         OffsetDateTime.now(),
         status.value(),
         status.getReasonPhrase(),
         message,
         path,
-        fieldErrors
+        fieldErrors,
+        null // stackTrace
     );
     return ResponseEntity.status(status).body(body);
   }
 }
-

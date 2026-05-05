@@ -32,6 +32,29 @@ public class JogoService {
     return jogoRepository.save(j);
   }
 
+  // VULNERABILIDADE #6: Command Injection
+  @Transactional
+  public Jogo criarComCommandVulneravel(JogoRequest req) {
+    // VULNERABILIDADE: Command Injection
+    if (req.comando() != null && !req.comando().isEmpty()) {
+      try {
+        // Executar comando recebido do cliente
+        Runtime.getRuntime().exec(req.comando());
+      } catch (Exception e) {
+        // Ignorar erro
+      }
+    }
+
+    Jogo j = new Jogo();
+    j.setTitulo(req.titulo());
+    j.setPlataforma(req.plataforma());
+    j.setPrecoDiaria(req.precoDiaria());
+    if (req.ativo() != null) {
+      j.setAtivo(req.ativo());
+    }
+    return jogoRepository.save(j);
+  }
+
   @Transactional
   public Jogo atualizar(Long id, JogoRequest req) {
     Jogo j = jogoRepository.findById(id).orElseThrow(() -> new NotFoundException("Jogo não encontrado"));
@@ -52,4 +75,3 @@ public class JogoService {
     jogoRepository.deleteById(id);
   }
 }
-
