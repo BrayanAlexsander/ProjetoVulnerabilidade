@@ -4,3 +4,18 @@ target/
 *.iml
 *.log
 
+# SonarQube and Coverage
+.sonarqube/
+.sonar/
+.scannerwork/
+**/target/site/jacoco/
+
+# IDE
+.classpath
+.project
+.settings/
+*.swp
+*.swo
+*~
+.DS_Store
+
